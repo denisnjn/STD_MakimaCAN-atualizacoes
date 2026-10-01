@@ -192,7 +192,6 @@ def publica_app(notas: list[str], seco: bool, apk: str = APK, substituir: bool =
             "codigo": codigo,
             "canal": canal(versao),
             "data": dt.date.today().isoformat(),
-            "notas": notas,
             "arquivo": nome,
             "url": f"{URL_BASE}/{tag}/{nome}",
             "sha256": sha256(dest),
@@ -259,7 +258,6 @@ def publica_firmware(notas: list[str], seco: bool, substituir: bool = False) -> 
             "versao": versao,
             "canal": canal(versao),
             "data": dt.date.today().isoformat(),
-            "notas": notas,
             "placa": PLACA,
             "chip": "ESP32",
             "flash": {
@@ -309,7 +307,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Publica app/firmware do STD_MakimaCAN")
     ap.add_argument("componente", choices=["app", "firmware", "recomendar", "retirar"])
     ap.add_argument("resto", nargs="*", help="recomendar/retirar: <app|firmware> <versao>")
-    ap.add_argument("--notas", nargs="+", default=[], help="o que mudou (uma linha por item)")
+    ap.add_argument("--notas", nargs="+", default=[], help="o que mudou: vai só para a página do release no GitHub (o app não mostra)")
     ap.add_argument("--seco", action="store_true", help="só mostra o que faria")
     ap.add_argument("--apk", default=APK, help="APK a publicar (padrão: o release do build)")
     ap.add_argument("--substituir", action="store_true", help="republica uma versão já publicada")

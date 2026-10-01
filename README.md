@@ -32,14 +32,14 @@ Versões: `M.m.p` (estável) e `M.m.p-beta.N` (beta), ex.: `1.0.0-beta.1` → `1
     "recomendada": "1.0.0",            // estável sugerida (null = a estável mais nova)
     "versoes": [ {                     // mais nova primeiro
       "versao": "1.0.0", "codigo": 1000099, "canal": "estavel", "data": "2026-10-10",
-      "notas": ["..."], "arquivo": "...apk", "url": "...", "sha256": "...", "tamanho": 0
+      "arquivo": "...apk", "url": "...", "sha256": "...", "tamanho": 0
     } ]
   },
   "firmware": {
     "placa": "makimacan20-esp32",
     "recomendada": null,
     "versoes": [ {
-      "versao": "1.0.0", "canal": "estavel", "data": "...", "notas": ["..."],
+      "versao": "1.0.0", "canal": "estavel", "data": "...",
       "placa": "makimacan20-esp32", "chip": "ESP32",
       "flash": { "modo": "dio", "frequencia": "40m", "tamanho": "2MB" },
       "partes": [ { "endereco": "0x1000", "arquivo": "...", "url": "...", "sha256": "...", "tamanho": 0 } ]
@@ -60,3 +60,6 @@ python publicar.py recomendar app 1.0.0
 ```
 
 Use `--seco` para ver o que seria feito sem enviar nada.
+
+As `--notas` vão só para a página do release no GitHub (documentação). O app
+mostra apenas a versão, a data e os selos (recomendada, beta, instalada).

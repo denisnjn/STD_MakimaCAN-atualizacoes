@@ -11,10 +11,6 @@
         "codigo": 2000000,
         "canal": "beta",
         "data": "2026-10-01",
-        "notas": [
-          "Beta de teste da ferramenta de atualização",
-          "Diferença conhecida: botão de Atualizações no topo (texto quebrado)"
-        ],
         "arquivo": "STD_MakimaCAN-1.1.0-beta.1.apk",
         "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.1.0-beta.1/STD_MakimaCAN-1.1.0-beta.1.apk",
         "sha256": "2390662d287f22d2604bfc7ef3f54a51a06020aad15d539ffc38806ab10b8957",
@@ -25,11 +21,6 @@
         "codigo": 2000000,
         "canal": "estavel",
         "data": "2026-10-01",
-        "notas": [
-          "Versão estável 1.0.0",
-          "Atualizações no rodapé da tela inicial",
-          "Tela de Atualizações: a recomendada em destaque; em 'Ver mais opções' dá para avançar ou voltar de versão (as configurações são mantidas)"
-        ],
         "arquivo": "STD_MakimaCAN-1.0.0.apk",
         "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.0.0/STD_MakimaCAN-1.0.0.apk",
         "sha256": "ca6d594cd90a26e5da66c9266127644cb2162ab549c14ac19d32da3a1f06a868",
@@ -45,9 +36,6 @@
         "versao": "1.1.0-beta.1",
         "canal": "beta",
         "data": "2026-10-01",
-        "notas": [
-          "Beta de teste da ferramenta de atualização (só a versão muda)"
-        ],
         "placa": "makimacan20-esp32",
         "chip": "ESP32",
         "flash": {
@@ -83,10 +71,6 @@
         "versao": "1.0.0",
         "canal": "estavel",
         "data": "2026-10-01",
-        "notas": [
-          "Versão estável 1.0.0",
-          "AT+STATUS? agora mostra a versão do firmware (fw=)"
-        ],
         "placa": "makimacan20-esp32",
         "chip": "ESP32",
         "flash": {
@@ -122,11 +106,6 @@
         "versao": "1.0.0-beta.1",
         "canal": "beta",
         "data": "2026-10-01",
-        "notas": [
-          "Primeira versão com o nome STD_MakimaCAN",
-          "Link fixo em 1 Mbaud; driver CAN novo (tempo do frame na interrupção)",
-          "Diagnóstico: tipos de erro da rede e captura bruta (AT+MODE=RAW)"
-        ],
         "placa": "makimacan20-esp32",
         "chip": "ESP32",
         "flash": {
