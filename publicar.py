@@ -5,8 +5,11 @@ Este repositório (público) só guarda os arquivos prontos e a lista de versõe
 (versoes.json). O código-fonte fica nos repositórios privados.
 
 Uso:
-  python publicar.py app       --notas "O que mudou" ["Outra linha" ...] [--seco]
-  python publicar.py firmware  --notas "O que mudou" ... [--seco]
+  python publicar.py app       [--seco] [--substituir] [--apk caminho]
+  python publicar.py firmware  [--seco] [--substituir]
+
+  Sem notas: o app e a página do release mostram só versão e data. O que mudou
+  vai no CHANGELOG.md do código-fonte (repositórios privados).
   python publicar.py recomendar app|firmware <versao>      # marca a versão "recomendada"
   python publicar.py retirar    app|firmware <versao>      # tira da lista (o arquivo fica no GitHub)
 
@@ -128,9 +131,9 @@ def salva_lista(lista: dict) -> None:
         fh.write("\n")
 
 
-def envia(tag: str, titulo: str, notas: list[str], arquivos: list[str], beta: bool, seco: bool,
+def envia(tag: str, titulo: str, arquivos: list[str], beta: bool, seco: bool,
           substituir: bool = False) -> None:
-    corpo = "\n".join(f"- {n}" for n in notas)
+    corpo = ""
     if substituir:
         roda([gh(), "release", "upload", tag, *arquivos, "--clobber", "--repo", REPO_GH], seco)
         roda([gh(), "release", "edit", tag, "--notes", corpo, "--repo", REPO_GH], seco)
@@ -158,7 +161,7 @@ def commit_lista(msg: str, seco: bool) -> None:
 
 # ---------------------------------------------------------------- app
 
-def publica_app(notas: list[str], seco: bool, apk: str = APK, substituir: bool = False) -> None:
+def publica_app(seco: bool, apk: str = APK, substituir: bool = False) -> None:
     if not os.path.isfile(apk):
         falha(f"APK não encontrado: {apk}\n  rode: gradlew assembleRelease")
     badging = roda([ferramenta_sdk("aapt2"), "dump", "badging", apk])
@@ -198,7 +201,7 @@ def publica_app(notas: list[str], seco: bool, apk: str = APK, substituir: bool =
             "tamanho": os.path.getsize(dest),
         }
         print(f"app {versao} (código {codigo}, {item['canal']}) — {item['tamanho']} bytes")
-        envia(tag, f"App STD_MakimaCAN {versao}", notas, [dest], canal(versao) == "beta", seco, existe)
+        envia(tag, f"App STD_MakimaCAN {versao}", [dest], canal(versao) == "beta", seco, existe)
     coloca(lista["app"]["versoes"], item, existe)
     if not seco:
         salva_lista(lista)
@@ -207,7 +210,7 @@ def publica_app(notas: list[str], seco: bool, apk: str = APK, substituir: bool =
 
 # ---------------------------------------------------------------- firmware
 
-def publica_firmware(notas: list[str], seco: bool, substituir: bool = False) -> None:
+def publica_firmware(seco: bool, substituir: bool = False) -> None:
     with open(FW_VERSAO_H, encoding="utf-8") as fh:
         m = re.search(r'#define\s+FIRMWARE_VERSION\s+"([^"]+)"', fh.read())
     if not m:
@@ -268,7 +271,7 @@ def publica_firmware(notas: list[str], seco: bool, substituir: bool = False) -> 
             "partes": partes,
         }
         print(f"firmware {versao} ({item['canal']}): " + ", ".join(f"{p['endereco']} {p['tamanho']}B" for p in partes))
-        envia(tag, f"Firmware STD_MakimaCAN {versao}", notas, enviar, canal(versao) == "beta", seco, existe)
+        envia(tag, f"Firmware STD_MakimaCAN {versao}", enviar, canal(versao) == "beta", seco, existe)
     coloca(lista["firmware"]["versoes"], item, existe)
     if not seco:
         salva_lista(lista)
@@ -307,7 +310,6 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Publica app/firmware do STD_MakimaCAN")
     ap.add_argument("componente", choices=["app", "firmware", "recomendar", "retirar"])
     ap.add_argument("resto", nargs="*", help="recomendar/retirar: <app|firmware> <versao>")
-    ap.add_argument("--notas", nargs="+", default=[], help="o que mudou: vai só para a página do release no GitHub (o app não mostra)")
     ap.add_argument("--seco", action="store_true", help="só mostra o que faria")
     ap.add_argument("--apk", default=APK, help="APK a publicar (padrão: o release do build)")
     ap.add_argument("--substituir", action="store_true", help="republica uma versão já publicada")
@@ -317,12 +319,10 @@ def main() -> None:
             falha(f"uso: publicar.py {a.componente} app|firmware <versao>")
         (recomenda if a.componente == "recomendar" else retira)(a.resto[0], a.resto[1], a.seco)
         return
-    if not a.notas:
-        falha("informe --notas com o que mudou")
     if a.componente == "app":
-        publica_app(a.notas, a.seco, a.apk, a.substituir)
+        publica_app(a.seco, a.apk, a.substituir)
     else:
-        publica_firmware(a.notas, a.seco, a.substituir)
+        publica_firmware(a.seco, a.substituir)
 
 
 if __name__ == "__main__":

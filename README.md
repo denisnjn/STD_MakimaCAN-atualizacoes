@@ -54,12 +54,13 @@ A área de dados do dispositivo (presets, configuração automática) não é ap
 ## Publicar (manutenção)
 
 ```
-python publicar.py app      --notas "O que mudou" "Outra linha"
-python publicar.py firmware --notas "O que mudou"
+python publicar.py app
+python publicar.py firmware
 python publicar.py recomendar app 1.0.0
 ```
 
 Use `--seco` para ver o que seria feito sem enviar nada.
 
-As `--notas` vão só para a página do release no GitHub (documentação). O app
-mostra apenas a versão, a data e os selos (recomendada, beta, instalada).
+Sem notas de versão: o app e a página do release mostram só a versão, a data
+e os selos (recomendada, beta, instalada). O que mudou em cada versão fica no
+`CHANGELOG.md` do código-fonte.
