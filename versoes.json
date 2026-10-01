@@ -5,7 +5,24 @@
   "app": {
     "pacote": "com.makimacan.std",
     "recomendada": null,
-    "versoes": []
+    "versoes": [
+      {
+        "versao": "1.0.0-beta.1",
+        "codigo": 1000001,
+        "canal": "beta",
+        "data": "2026-10-01",
+        "notas": [
+          "Primeira versão com o nome STD_MakimaCAN (instala ao lado do app antigo: reinstalação única)",
+          "Saúde da rede CAN: LED na faixa de status e diagnóstico na gaveta",
+          "Captura bruta (diagnóstico) em Ajustes › Leitura CAN",
+          "Tela de Atualizações: app e firmware, gravação do firmware pelo cabo USB"
+        ],
+        "arquivo": "STD_MakimaCAN-1.0.0-beta.1.apk",
+        "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.0.0-beta.1/STD_MakimaCAN-1.0.0-beta.1.apk",
+        "sha256": "80afebce42cdd1a5c0dd12e9dc95bbea5490948ba7d22d8d7d6cc66d988390ca",
+        "tamanho": 2755918
+      }
+    ]
   },
   "firmware": {
     "placa": "makimacan20-esp32",
