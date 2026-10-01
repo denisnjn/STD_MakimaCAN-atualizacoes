@@ -22,17 +22,18 @@
       },
       {
         "versao": "1.0.0",
-        "codigo": 1000099,
+        "codigo": 2000000,
         "canal": "estavel",
         "data": "2026-10-01",
         "notas": [
           "Versão estável 1.0.0",
-          "Atualizações agora ficam no rodapé da tela inicial"
+          "Atualizações no rodapé da tela inicial",
+          "Tela de Atualizações: a recomendada em destaque; em 'Ver mais opções' dá para avançar ou voltar de versão (as configurações são mantidas)"
         ],
         "arquivo": "STD_MakimaCAN-1.0.0.apk",
         "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.0.0/STD_MakimaCAN-1.0.0.apk",
-        "sha256": "a875d25d723922ced6f99bb9ed5c838db9ff8460a36af908e936bb49d0760b23",
-        "tamanho": 2755914
+        "sha256": "ca6d594cd90a26e5da66c9266127644cb2162ab549c14ac19d32da3a1f06a868",
+        "tamanho": 2772298
       },
       {
         "versao": "1.0.0-beta.1",
