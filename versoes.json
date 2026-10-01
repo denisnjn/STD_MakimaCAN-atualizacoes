@@ -4,7 +4,7 @@
   "atualizado_em": "2026-10-01",
   "app": {
     "pacote": "com.makimacan.std",
-    "recomendada": null,
+    "recomendada": "1.0.0",
     "versoes": [
       {
         "versao": "1.1.0-beta.1",
