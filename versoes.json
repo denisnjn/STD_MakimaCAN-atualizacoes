@@ -8,7 +8,7 @@
     "versoes": [
       {
         "versao": "1.1.0-beta.1",
-        "codigo": 1010001,
+        "codigo": 2000000,
         "canal": "beta",
         "data": "2026-10-01",
         "notas": [
@@ -17,8 +17,8 @@
         ],
         "arquivo": "STD_MakimaCAN-1.1.0-beta.1.apk",
         "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.1.0-beta.1/STD_MakimaCAN-1.1.0-beta.1.apk",
-        "sha256": "4e6aa1bc5e9cfa76ec299529b91c09cd7274407075d34e876a59e720ad62424a",
-        "tamanho": 2755918
+        "sha256": "2390662d287f22d2604bfc7ef3f54a51a06020aad15d539ffc38806ab10b8957",
+        "tamanho": 2772302
       },
       {
         "versao": "1.0.0",
