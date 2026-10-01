@@ -141,10 +141,10 @@ def commit_lista(msg: str, seco: bool) -> None:
 
 # ---------------------------------------------------------------- app
 
-def publica_app(notas: list[str], seco: bool) -> None:
-    if not os.path.isfile(APK):
-        falha(f"APK não encontrado: {APK}\n  rode: gradlew assembleRelease")
-    badging = roda([ferramenta_sdk("aapt2"), "dump", "badging", APK])
+def publica_app(notas: list[str], seco: bool, apk: str = APK) -> None:
+    if not os.path.isfile(apk):
+        falha(f"APK não encontrado: {apk}\n  rode: gradlew assembleRelease")
+    badging = roda([ferramenta_sdk("aapt2"), "dump", "badging", apk])
     m = re.search(r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'", badging)
     if not m:
         falha("não consegui ler pacote/versão do APK")
@@ -154,7 +154,7 @@ def publica_app(notas: list[str], seco: bool) -> None:
     if not RE_VERSAO.match(versao):
         falha(f"versão fora do padrão: {versao}")
 
-    certs = roda([ferramenta_sdk("apksigner"), "verify", "--print-certs", APK])
+    certs = roda([ferramenta_sdk("apksigner"), "verify", "--print-certs", apk])
     m = re.search(r"certificate SHA-256 digest: ([0-9a-fA-F]+)", certs)
     if not m or m.group(1).upper() != CERT_SHA256:
         falha("o APK NÃO está assinado com a chave de publicação.\n"
@@ -168,7 +168,7 @@ def publica_app(notas: list[str], seco: bool) -> None:
     tag = f"app-v{versao}"
     with tempfile.TemporaryDirectory() as tmp:
         dest = os.path.join(tmp, nome)
-        shutil.copyfile(APK, dest)
+        shutil.copyfile(apk, dest)
         item = {
             "versao": versao,
             "codigo": codigo,
@@ -278,6 +278,7 @@ def main() -> None:
     ap.add_argument("resto", nargs="*", help="recomendar: <app|firmware> <versao>")
     ap.add_argument("--notas", nargs="+", default=[], help="o que mudou (uma linha por item)")
     ap.add_argument("--seco", action="store_true", help="só mostra o que faria")
+    ap.add_argument("--apk", default=APK, help="APK a publicar (padrão: o release do build)")
     a = ap.parse_args()
     if a.componente == "recomendar":
         if len(a.resto) != 2 or a.resto[0] not in ("app", "firmware"):
@@ -287,7 +288,7 @@ def main() -> None:
     if not a.notas:
         falha("informe --notas com o que mudou")
     if a.componente == "app":
-        publica_app(a.notas, a.seco)
+        publica_app(a.notas, a.seco, a.apk)
     else:
         publica_firmware(a.notas, a.seco)
 
