@@ -1,0 +1,15 @@
+{
+  "formato": 1,
+  "produto": "STD_MakimaCAN",
+  "atualizado_em": "2026-10-01",
+  "app": {
+    "pacote": "com.makimacan.std",
+    "recomendada": null,
+    "versoes": []
+  },
+  "firmware": {
+    "placa": "makimacan20-esp32",
+    "recomendada": null,
+    "versoes": []
+  }
+}
