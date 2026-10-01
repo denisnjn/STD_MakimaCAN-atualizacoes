@@ -7,6 +7,20 @@
     "recomendada": null,
     "versoes": [
       {
+        "versao": "1.1.0-beta.1",
+        "codigo": 1010001,
+        "canal": "beta",
+        "data": "2026-10-01",
+        "notas": [
+          "Beta de teste da ferramenta de atualização",
+          "Diferença conhecida: botão de Atualizações no topo (texto quebrado)"
+        ],
+        "arquivo": "STD_MakimaCAN-1.1.0-beta.1.apk",
+        "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.1.0-beta.1/STD_MakimaCAN-1.1.0-beta.1.apk",
+        "sha256": "4e6aa1bc5e9cfa76ec299529b91c09cd7274407075d34e876a59e720ad62424a",
+        "tamanho": 2755918
+      },
+      {
         "versao": "1.0.0",
         "codigo": 1000099,
         "canal": "estavel",
