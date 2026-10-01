@@ -31,7 +31,7 @@ Versões: `M.m.p` (estável) e `M.m.p-beta.N` (beta), ex.: `1.0.0-beta.1` → `1
     "pacote": "com.makimacan.std",
     "recomendada": "1.0.0",            // estável sugerida (null = a estável mais nova)
     "versoes": [ {                     // mais nova primeiro
-      "versao": "1.0.0", "codigo": 1000099, "canal": "estavel", "data": "2026-10-10",
+      "versao": "1.0.0", "codigo": 2000000, "canal": "estavel", "data": "2026-10-10",
       "arquivo": "...apk", "url": "...", "sha256": "...", "tamanho": 0
     } ]
   },
