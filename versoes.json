@@ -17,16 +17,6 @@
         "tamanho": 5567239
       },
       {
-        "versao": "1.1.0-beta.3",
-        "codigo": 2000000,
-        "canal": "beta",
-        "data": "2026-10-01",
-        "arquivo": "STD_MakimaCAN-1.1.0-beta.3.apk",
-        "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/app-v1.1.0-beta.3/STD_MakimaCAN-1.1.0-beta.3.apk",
-        "sha256": "6ea8a9912d69c3d27eac2cabfd650254eb74eb88939d2b5c27d6b3ab86138ce4",
-        "tamanho": 5686319
-      },
-      {
         "versao": "1.0.0",
         "codigo": 2000000,
         "canal": "estavel",
