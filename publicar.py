@@ -5,14 +5,18 @@ Este repositório (público) só guarda os arquivos prontos e a lista de versõe
 (versoes.json). O código-fonte fica nos repositórios privados.
 
 Uso:
-  python publicar.py app       [--seco] [--substituir] [--apk caminho]
-  python publicar.py firmware  [--seco] [--substituir]
+  python publicar.py app       [--beta] [--seco] [--substituir] [--apk caminho]
+  python publicar.py firmware  [--beta] [--seco] [--substituir]
 
   Sem notas: o app e a página do release mostram só versão e data. O que mudou
   vai no CHANGELOG.md do código-fonte (repositórios privados).
   python publicar.py recomendar app|firmware <versao>      # marca a versão "recomendada"
+                                                           # (uma beta sem sufixo vira estável)
   python publicar.py retirar    app|firmware <versao>      # tira da lista (o arquivo fica no GitHub)
 
+  --beta        publica no canal beta (pre-release). Desde a 1.1.1 o número não
+                tem mais "-beta.N": beta ou estável é o canal, não o número. Quando
+                a versão é aprovada, "recomendar" a promove a estável.
   --substituir  republica uma versão que já está na lista (troca os arquivos).
 
   --seco   mostra o que faria, sem enviar nada.
@@ -66,8 +70,9 @@ def falha(msg: str) -> None:
     sys.exit(1)
 
 
-def canal(versao: str) -> str:
-    return "beta" if "-beta." in versao else "estavel"
+def canal(versao: str, beta: bool = False) -> str:
+    """Beta pela opção --beta (versões novas) ou pelo sufixo antigo "-beta.N"."""
+    return "beta" if beta or "-beta." in versao else "estavel"
 
 
 def sha256(path: str) -> str:
@@ -161,7 +166,7 @@ def commit_lista(msg: str, seco: bool) -> None:
 
 # ---------------------------------------------------------------- app
 
-def publica_app(seco: bool, apk: str = APK, substituir: bool = False) -> None:
+def publica_app(seco: bool, apk: str = APK, substituir: bool = False, beta: bool = False) -> None:
     if not os.path.isfile(apk):
         falha(f"APK não encontrado: {apk}\n  rode: gradlew assembleRelease")
     badging = roda([ferramenta_sdk("aapt2"), "dump", "badging", apk])
@@ -193,7 +198,7 @@ def publica_app(seco: bool, apk: str = APK, substituir: bool = False) -> None:
         item = {
             "versao": versao,
             "codigo": codigo,
-            "canal": canal(versao),
+            "canal": canal(versao, beta),
             "data": dt.date.today().isoformat(),
             "arquivo": nome,
             "url": f"{URL_BASE}/{tag}/{nome}",
@@ -201,7 +206,7 @@ def publica_app(seco: bool, apk: str = APK, substituir: bool = False) -> None:
             "tamanho": os.path.getsize(dest),
         }
         print(f"app {versao} (código {codigo}, {item['canal']}) — {item['tamanho']} bytes")
-        envia(tag, f"App STD_MakimaCAN {versao}", [dest], canal(versao) == "beta", seco, existe)
+        envia(tag, f"App STD_MakimaCAN {versao}", [dest], canal(versao, beta) == "beta", seco, existe)
     coloca(lista["app"]["versoes"], item, existe)
     if not seco:
         salva_lista(lista)
@@ -210,7 +215,7 @@ def publica_app(seco: bool, apk: str = APK, substituir: bool = False) -> None:
 
 # ---------------------------------------------------------------- firmware
 
-def publica_firmware(seco: bool, substituir: bool = False) -> None:
+def publica_firmware(seco: bool, substituir: bool = False, beta: bool = False) -> None:
     with open(FW_VERSAO_H, encoding="utf-8") as fh:
         m = re.search(r'#define\s+FIRMWARE_VERSION\s+"([^"]+)"', fh.read())
     if not m:
@@ -259,7 +264,7 @@ def publica_firmware(seco: bool, substituir: bool = False) -> None:
             })
         item = {
             "versao": versao,
-            "canal": canal(versao),
+            "canal": canal(versao, beta),
             "data": dt.date.today().isoformat(),
             "placa": PLACA,
             "chip": "ESP32",
@@ -271,7 +276,7 @@ def publica_firmware(seco: bool, substituir: bool = False) -> None:
             "partes": partes,
         }
         print(f"firmware {versao} ({item['canal']}): " + ", ".join(f"{p['endereco']} {p['tamanho']}B" for p in partes))
-        envia(tag, f"Firmware STD_MakimaCAN {versao}", enviar, canal(versao) == "beta", seco, existe)
+        envia(tag, f"Firmware STD_MakimaCAN {versao}", enviar, canal(versao, beta) == "beta", seco, existe)
     coloca(lista["firmware"]["versoes"], item, existe)
     if not seco:
         salva_lista(lista)
@@ -283,8 +288,14 @@ def recomenda(componente: str, versao: str, seco: bool) -> None:
     alvo = next((v for v in lista[componente]["versoes"] if v["versao"] == versao), None)
     if alvo is None:
         falha(f"{componente} {versao} não está na lista")
+    if "-beta." in versao:
+        falha("versão com sufixo -beta não pode ser a recomendada")
     if alvo["canal"] != "estavel":
-        falha("só uma versão estável pode ser a recomendada")
+        # Beta aprovada: vira estável (no catálogo e no release do GitHub).
+        alvo["canal"] = "estavel"
+        tag = ("app-v" if componente == "app" else "fw-v") + versao
+        roda([gh(), "release", "edit", tag, "--prerelease=false", "--repo", REPO_GH], seco)
+        print(f"{componente} {versao}: beta promovida a estável")
     lista[componente]["recomendada"] = versao
     print(f"{componente}: recomendada = {versao}")
     if not seco:
@@ -313,6 +324,7 @@ def main() -> None:
     ap.add_argument("--seco", action="store_true", help="só mostra o que faria")
     ap.add_argument("--apk", default=APK, help="APK a publicar (padrão: o release do build)")
     ap.add_argument("--substituir", action="store_true", help="republica uma versão já publicada")
+    ap.add_argument("--beta", action="store_true", help="publica no canal beta (pre-release)")
     a = ap.parse_args()
     if a.componente in ("recomendar", "retirar"):
         if len(a.resto) != 2 or a.resto[0] not in ("app", "firmware"):
@@ -320,9 +332,9 @@ def main() -> None:
         (recomenda if a.componente == "recomendar" else retira)(a.resto[0], a.resto[1], a.seco)
         return
     if a.componente == "app":
-        publica_app(a.seco, a.apk, a.substituir)
+        publica_app(a.seco, a.apk, a.substituir, a.beta)
     else:
-        publica_firmware(a.seco, a.substituir)
+        publica_firmware(a.seco, a.substituir, a.beta)
 
 
 if __name__ == "__main__":
