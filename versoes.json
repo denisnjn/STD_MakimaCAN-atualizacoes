@@ -33,6 +33,41 @@
     "recomendada": "1.0.0",
     "versoes": [
       {
+        "versao": "1.1.0-beta.3",
+        "canal": "beta",
+        "data": "2026-10-01",
+        "placa": "makimacan20-esp32",
+        "chip": "ESP32",
+        "flash": {
+          "modo": "dio",
+          "frequencia": "40m",
+          "tamanho": "2MB"
+        },
+        "partes": [
+          {
+            "endereco": "0x1000",
+            "arquivo": "STD_MakimaCAN-fw-1.1.0-beta.3-bootloader.bin",
+            "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/fw-v1.1.0-beta.3/STD_MakimaCAN-fw-1.1.0-beta.3-bootloader.bin",
+            "sha256": "47dd7e5ce25f352b230f8760438aec60eaf579dac1176910e24ac112c17fcd1e",
+            "tamanho": 24736
+          },
+          {
+            "endereco": "0x8000",
+            "arquivo": "STD_MakimaCAN-fw-1.1.0-beta.3-particoes.bin",
+            "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/fw-v1.1.0-beta.3/STD_MakimaCAN-fw-1.1.0-beta.3-particoes.bin",
+            "sha256": "7f00b6c042a89b15b0cac534f82ed988caf29278ff5700b0c511eb1b5bb7c820",
+            "tamanho": 3072
+          },
+          {
+            "endereco": "0x10000",
+            "arquivo": "STD_MakimaCAN-fw-1.1.0-beta.3-programa.bin",
+            "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/fw-v1.1.0-beta.3/STD_MakimaCAN-fw-1.1.0-beta.3-programa.bin",
+            "sha256": "74234f6692b677f844990587fcf175261dfebfb8ccf5a38c9184dfec457e78de",
+            "tamanho": 290992
+          }
+        ]
+      },
+      {
         "versao": "1.1.0-beta.2",
         "canal": "beta",
         "data": "2026-10-01",
