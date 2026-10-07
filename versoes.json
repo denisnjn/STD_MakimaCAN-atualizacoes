@@ -1,7 +1,7 @@
 {
   "formato": 1,
   "produto": "STD_MakimaCAN",
-  "atualizado_em": "2026-10-02",
+  "atualizado_em": "2026-10-07",
   "app": {
     "pacote": "com.makimacan.std",
     "recomendada": "1.0.0",
@@ -111,6 +111,20 @@
             "tamanho": 287328
           }
         ]
+      }
+    ]
+  },
+  "pc": {
+    "recomendada": null,
+    "versoes": [
+      {
+        "versao": "1.0.1",
+        "canal": "beta",
+        "data": "2026-10-07",
+        "arquivo": "MakimacanStudio-Setup-1.0.1.exe",
+        "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/pc-v1.0.1/MakimacanStudio-Setup-1.0.1.exe",
+        "sha256": "2e6ace53b3d949f0b786942e731de0714b625d45c0564dcf9fc77f0db1e54f4f",
+        "tamanho": 31060494
       }
     ]
   }
