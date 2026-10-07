@@ -1,5 +1,5 @@
 """
-Publica uma versão do app Android ou do firmware do STD_MakimaCAN.
+Publica uma versão do app Android, do firmware ou do programa do PC do STD_MakimaCAN.
 
 Este repositório (público) só guarda os arquivos prontos e a lista de versões
 (versoes.json). O código-fonte fica nos repositórios privados.
@@ -7,12 +7,13 @@ Este repositório (público) só guarda os arquivos prontos e a lista de versõe
 Uso:
   python publicar.py app       [--beta] [--seco] [--substituir] [--apk caminho]
   python publicar.py firmware  [--beta] [--seco] [--substituir]
+  python publicar.py pc        [--beta] [--seco] [--substituir]
 
   Sem notas: o app e a página do release mostram só versão e data. O que mudou
   vai no CHANGELOG.md do código-fonte (repositórios privados).
-  python publicar.py recomendar app|firmware <versao>      # marca a versão "recomendada"
+  python publicar.py recomendar app|firmware|pc <versao>   # marca a versão "recomendada"
                                                            # (uma beta sem sufixo vira estável)
-  python publicar.py retirar    app|firmware <versao>      # tira da lista (o arquivo fica no GitHub)
+  python publicar.py retirar    app|firmware|pc <versao>   # tira da lista (o arquivo fica no GitHub)
 
   --beta        publica no canal beta (pre-release). Desde a 1.1.1 o número não
                 tem mais "-beta.N": beta ou estável é o canal, não o número. Quando
@@ -30,6 +31,9 @@ O que o script faz (app):
   4. acrescenta a versão em versoes.json, faz commit e push.
 Firmware: igual, com bootloader.bin, partitions.bin e firmware.bin e os
 endereços tirados do flasher_args.json do build (gravados nessa ordem pelo app).
+PC: o instalador já gerado (python -m tools.build_instalador no código do PC),
+com a versão de core/version.py; release "pc-v<versao>". O programa instalado
+baixa, confere o SHA-256 e se reinstala sozinho (core/auto_atualizar.py).
 
 Precisa: Python 3.9+, gh (GitHub CLI) logado, git, Android SDK (apksigner/aapt2).
 """
@@ -61,6 +65,9 @@ FW_REPO = os.path.join(APPS, "idf", "MakimacanSTD_firmware")
 FW_BUILD = os.path.join(FW_REPO, ".pio", "build", "makimacan20-esp32")
 FW_VERSAO_H = os.path.join(FW_REPO, "src", "app_version.h")
 PLACA = "makimacan20-esp32"
+PC_REPO = os.path.join(APPS, "Python", "MakimacanSTD")
+PC_VERSAO_PY = os.path.join(PC_REPO, "core", "version.py")
+PC_SAIDA = os.path.join(PC_REPO, "dist", "instalador")
 
 RE_VERSAO = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:-beta\.(\d+))?$")
 
@@ -283,6 +290,48 @@ def publica_firmware(seco: bool, substituir: bool = False, beta: bool = False) -
     commit_lista(f"firmware {versao}" + (" (republicado)" if existe else ""), seco)
 
 
+# ---------------------------------------------------------------- pc
+
+def publica_pc(seco: bool, substituir: bool = False, beta: bool = False) -> None:
+    with open(PC_VERSAO_PY, encoding="utf-8") as fh:
+        m = re.search(r'APP_VERSION\s*=\s*"([^"]+)"', fh.read())
+    if not m:
+        falha("APP_VERSION não encontrado em core/version.py do PC")
+    versao = m.group(1)
+    if not RE_VERSAO.match(versao):
+        falha(f"versão fora do padrão: {versao}")
+    nome = f"MakimacanStudio-Setup-{versao}.exe"
+    setup = os.path.join(PC_SAIDA, nome)
+    if not os.path.isfile(setup):
+        falha(f"instalador não encontrado: {setup}\n  rode no código do PC: python -m tools.build_instalador")
+
+    lista = carrega_lista()
+    pc = lista.setdefault("pc", {"recomendada": None, "versoes": []})
+    existe = any(v["versao"] == versao for v in pc["versoes"])
+    if existe and not substituir:
+        falha(f"PC {versao} já publicado (suba APP_VERSION em core/version.py, ou use --substituir)")
+
+    tag = f"pc-v{versao}"
+    item = {
+        "versao": versao,
+        "canal": canal(versao, beta),
+        "data": dt.date.today().isoformat(),
+        "arquivo": nome,
+        "url": f"{URL_BASE}/{tag}/{nome}",
+        "sha256": sha256(setup),
+        "tamanho": os.path.getsize(setup),
+    }
+    print(f"PC {versao} ({item['canal']}) — {item['tamanho']} bytes")
+    envia(tag, f"Programa do PC (MAKIMACAN Studio) {versao}", [setup], canal(versao, beta) == "beta", seco, existe)
+    coloca(pc["versoes"], item, existe)
+    if not seco:
+        salva_lista(lista)
+    commit_lista(f"pc {versao}" + (" (republicado)" if existe else ""), seco)
+
+
+PREFIXO_TAG = {"app": "app-v", "firmware": "fw-v", "pc": "pc-v"}
+
+
 def recomenda(componente: str, versao: str, seco: bool) -> None:
     lista = carrega_lista()
     alvo = next((v for v in lista[componente]["versoes"] if v["versao"] == versao), None)
@@ -293,7 +342,7 @@ def recomenda(componente: str, versao: str, seco: bool) -> None:
     if alvo["canal"] != "estavel":
         # Beta aprovada: vira estável (no catálogo e no release do GitHub).
         alvo["canal"] = "estavel"
-        tag = ("app-v" if componente == "app" else "fw-v") + versao
+        tag = PREFIXO_TAG[componente] + versao
         roda([gh(), "release", "edit", tag, "--prerelease=false", "--repo", REPO_GH], seco)
         print(f"{componente} {versao}: beta promovida a estável")
     lista[componente]["recomendada"] = versao
@@ -318,21 +367,23 @@ def retira(componente: str, versao: str, seco: bool) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Publica app/firmware do STD_MakimaCAN")
-    ap.add_argument("componente", choices=["app", "firmware", "recomendar", "retirar"])
-    ap.add_argument("resto", nargs="*", help="recomendar/retirar: <app|firmware> <versao>")
+    ap = argparse.ArgumentParser(description="Publica app/firmware/pc do STD_MakimaCAN")
+    ap.add_argument("componente", choices=["app", "firmware", "pc", "recomendar", "retirar"])
+    ap.add_argument("resto", nargs="*", help="recomendar/retirar: <app|firmware|pc> <versao>")
     ap.add_argument("--seco", action="store_true", help="só mostra o que faria")
     ap.add_argument("--apk", default=APK, help="APK a publicar (padrão: o release do build)")
     ap.add_argument("--substituir", action="store_true", help="republica uma versão já publicada")
     ap.add_argument("--beta", action="store_true", help="publica no canal beta (pre-release)")
     a = ap.parse_args()
     if a.componente in ("recomendar", "retirar"):
-        if len(a.resto) != 2 or a.resto[0] not in ("app", "firmware"):
-            falha(f"uso: publicar.py {a.componente} app|firmware <versao>")
+        if len(a.resto) != 2 or a.resto[0] not in PREFIXO_TAG:
+            falha(f"uso: publicar.py {a.componente} app|firmware|pc <versao>")
         (recomenda if a.componente == "recomendar" else retira)(a.resto[0], a.resto[1], a.seco)
         return
     if a.componente == "app":
         publica_app(a.seco, a.apk, a.substituir, a.beta)
+    elif a.componente == "pc":
+        publica_pc(a.seco, a.substituir, a.beta)
     else:
         publica_firmware(a.seco, a.substituir, a.beta)
 

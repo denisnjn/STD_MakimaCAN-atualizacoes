@@ -1,8 +1,9 @@
 # STD_MakimaCAN — atualizações
 
-Downloads do app Android e do firmware do **STD_MakimaCAN**. O app consulta
-`versoes.json` deste repositório ao abrir e mostra, na tela **Atualizações**,
-o que há de novo. Nada é instalado sem o usuário tocar em "Instalar"/"Gravar".
+Downloads do app Android, do firmware e do programa do PC (**MAKIMACAN Studio**)
+do **STD_MakimaCAN**. Os apps consultam `versoes.json` deste repositório ao abrir
+e mostram, na tela **Atualizações**, o que há de novo. Nada é instalado sem o
+usuário tocar em "Instalar"/"Gravar"/"Atualizar".
 
 Este repositório só tem os arquivos prontos — o código-fonte é privado.
 
@@ -12,6 +13,9 @@ Este repositório só tem os arquivos prontos — o código-fonte é privado.
   app já instalado. Um APK de outra origem não instala por cima.
 - **Todos os arquivos:** o app confere o SHA-256 listado em `versoes.json`
   antes de usar o arquivo.
+- **PC:** o programa baixa o instalador (`MakimacanStudio-Setup-<versao>.exe`),
+  confere o SHA-256, fecha e roda o instalador em modo silencioso, que reabre o
+  programa na versão nova. Instalação por usuário, sem pedir administrador.
 
 ## Canais
 
@@ -44,6 +48,13 @@ Versões: `M.m.p` (estável) e `M.m.p-beta.N` (beta), ex.: `1.0.0-beta.1` → `1
       "flash": { "modo": "dio", "frequencia": "40m", "tamanho": "2MB" },
       "partes": [ { "endereco": "0x1000", "arquivo": "...", "url": "...", "sha256": "...", "tamanho": 0 } ]
     } ]
+  },
+  "pc": {                              // programa do PC (instalador Windows)
+    "recomendada": null,
+    "versoes": [ {
+      "versao": "1.0.1", "canal": "beta", "data": "...",
+      "arquivo": "MakimacanStudio-Setup-1.0.1.exe", "url": "...", "sha256": "...", "tamanho": 0
+    } ]
   }
 }
 ```
@@ -56,6 +67,7 @@ A área de dados do dispositivo (presets, configuração automática) não é ap
 ```
 python publicar.py app
 python publicar.py firmware
+python publicar.py pc                  # antes: python -m tools.build_instalador no código do PC
 python publicar.py recomendar app 1.0.0
 ```
 
