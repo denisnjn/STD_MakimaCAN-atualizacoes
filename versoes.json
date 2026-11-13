@@ -1,7 +1,7 @@
 {
   "formato": 1,
   "produto": "STD_MakimaCAN",
-  "atualizado_em": "2026-10-07",
+  "atualizado_em": "2026-11-12",
   "app": {
     "pacote": "com.makimacan.std",
     "recomendada": "1.0.0",
@@ -42,6 +42,41 @@
     "placa": "makimacan20-esp32",
     "recomendada": "1.0.0",
     "versoes": [
+      {
+        "versao": "1.0.5",
+        "canal": "beta",
+        "data": "2026-11-12",
+        "placa": "makimacan20-esp32",
+        "chip": "ESP32",
+        "flash": {
+          "modo": "dio",
+          "frequencia": "40m",
+          "tamanho": "2MB"
+        },
+        "partes": [
+          {
+            "endereco": "0x1000",
+            "arquivo": "STD_MakimaCAN-fw-1.0.5-bootloader.bin",
+            "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/fw-v1.0.5/STD_MakimaCAN-fw-1.0.5-bootloader.bin",
+            "sha256": "36d35d015f5af0bfd172d8e6ca19e4a6e10f29075748a7430cd461496918bd4f",
+            "tamanho": 24736
+          },
+          {
+            "endereco": "0x8000",
+            "arquivo": "STD_MakimaCAN-fw-1.0.5-particoes.bin",
+            "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/fw-v1.0.5/STD_MakimaCAN-fw-1.0.5-particoes.bin",
+            "sha256": "7f00b6c042a89b15b0cac534f82ed988caf29278ff5700b0c511eb1b5bb7c820",
+            "tamanho": 3072
+          },
+          {
+            "endereco": "0x10000",
+            "arquivo": "STD_MakimaCAN-fw-1.0.5-programa.bin",
+            "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/fw-v1.0.5/STD_MakimaCAN-fw-1.0.5-programa.bin",
+            "sha256": "0f33658dfbe6449f6e1e39023d7ac932a7eebd6879da6fb5515f6f518557a54b",
+            "tamanho": 553792
+          }
+        ]
+      },
       {
         "versao": "1.0.2",
         "canal": "beta",
