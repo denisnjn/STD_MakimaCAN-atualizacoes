@@ -172,5 +172,21 @@
         "tamanho": 31060494
       }
     ]
+  },
+  "simu": {
+    "pacote": "com.makimacan.simu",
+    "recomendada": null,
+    "versoes": [
+      {
+        "versao": "1.0.0",
+        "codigo": 2000000,
+        "canal": "beta",
+        "data": "2026-11-12",
+        "arquivo": "MakiSimu-1.0.0.apk",
+        "url": "https://github.com/denisnjn/STD_MakimaCAN-atualizacoes/releases/download/simu-v1.0.0/MakiSimu-1.0.0.apk",
+        "sha256": "8a6bee0d86422cfa7d2ab048857d4c5e325b66a6a6e394c8751a444b75ad3733",
+        "tamanho": 2953867
+      }
+    ]
   }
 }
