@@ -8,12 +8,15 @@ Uso:
   python publicar.py app       [--beta] [--seco] [--substituir] [--apk caminho]
   python publicar.py firmware  [--beta] [--seco] [--substituir]
   python publicar.py pc        [--beta] [--seco] [--substituir]
+  python publicar.py simu      [--beta] [--seco] [--substituir] [--apk caminho]   # MakiSimu
+
+  Firmware compilado fora da pasta padrão (ex.: git worktree): MAKIMACAN_FW_REPO=<pasta>.
 
   Sem notas: o app e a página do release mostram só versão e data. O que mudou
   vai no CHANGELOG.md do código-fonte (repositórios privados).
-  python publicar.py recomendar app|firmware|pc <versao>   # marca a versão "recomendada"
+  python publicar.py recomendar app|simu|firmware|pc <versao>   # marca a versão "recomendada"
                                                            # (uma beta sem sufixo vira estável)
-  python publicar.py retirar    app|firmware|pc <versao>   # tira da lista (o arquivo fica no GitHub)
+  python publicar.py retirar    app|simu|firmware|pc <versao>   # tira da lista (o arquivo fica no GitHub)
 
   --beta        publica no canal beta (pre-release). Desde a 1.1.1 o número não
                 tem mais "-beta.N": beta ou estável é o canal, não o número. Quando
@@ -61,7 +64,16 @@ PACOTE = "com.makimacan.std"
 CERT_SHA256 = "8AC7F1446978F843CE30FD3BE96D797D079C544DF500E25BE21B4A9B9B4E3F66"
 
 APK = os.path.join(APPS, "Android", "MakimacanSTD", "app", "build", "outputs", "apk", "release", "app-release.apk")
-FW_REPO = os.path.join(APPS, "idf", "MakimacanSTD_firmware")
+# MakiSimu: só o simulador, para passar a outras pessoas (mesma chave de publicação).
+SIMU_PACOTE = "com.makimacan.simu"
+SIMU_APK = os.path.join(APPS, "Android", "MakiSimu", "app", "build", "outputs", "apk", "release", "app-release.apk")
+# Produtos Android: chave no versoes.json -> (pacote, APK padrão, nome do arquivo, prefixo da tag, título)
+ANDROID = {
+    "app": (PACOTE, APK, "STD_MakimaCAN", "app-v", "App STD_MakimaCAN"),
+    "simu": (SIMU_PACOTE, SIMU_APK, "MakiSimu", "simu-v", "App MakiSimu"),
+}
+# Firmware compilado em outra pasta (ex.: um git worktree): MAKIMACAN_FW_REPO=<pasta>.
+FW_REPO = os.environ.get("MAKIMACAN_FW_REPO") or os.path.join(APPS, "idf", "MakimacanSTD_firmware")
 FW_BUILD = os.path.join(FW_REPO, ".pio", "build", "makimacan20-esp32")
 FW_VERSAO_H = os.path.join(FW_REPO, "src", "app_version.h")
 PLACA = "makimacan20-esp32"
@@ -173,7 +185,10 @@ def commit_lista(msg: str, seco: bool) -> None:
 
 # ---------------------------------------------------------------- app
 
-def publica_app(seco: bool, apk: str = APK, substituir: bool = False, beta: bool = False) -> None:
+def publica_app(seco: bool, apk: str | None = None, substituir: bool = False, beta: bool = False,
+                comp: str = "app") -> None:
+    pacote_esperado, apk_padrao, prefixo_nome, prefixo_tag, titulo = ANDROID[comp]
+    apk = apk or apk_padrao
     if not os.path.isfile(apk):
         falha(f"APK não encontrado: {apk}\n  rode: gradlew assembleRelease")
     badging = roda([ferramenta_sdk("aapt2"), "dump", "badging", apk])
@@ -181,8 +196,8 @@ def publica_app(seco: bool, apk: str = APK, substituir: bool = False, beta: bool
     if not m:
         falha("não consegui ler pacote/versão do APK")
     pacote, codigo, versao = m.group(1), int(m.group(2)), m.group(3)
-    if pacote != PACOTE:
-        falha(f"pacote {pacote}, esperado {PACOTE}")
+    if pacote != pacote_esperado:
+        falha(f"pacote {pacote}, esperado {pacote_esperado}")
     if not RE_VERSAO.match(versao):
         falha(f"versão fora do padrão: {versao}")
 
@@ -193,12 +208,14 @@ def publica_app(seco: bool, apk: str = APK, substituir: bool = False, beta: bool
               "  Confira ~/.gradle/gradle.properties (STD_KEYSTORE_*) e recompile o release.")
 
     lista = carrega_lista()
-    existe = any(v["versao"] == versao for v in lista["app"]["versoes"])
+    if comp not in lista:
+        lista[comp] = {"pacote": pacote_esperado, "recomendada": None, "versoes": []}
+    existe = any(v["versao"] == versao for v in lista[comp]["versoes"])
     if existe and not substituir:
-        falha(f"app {versao} já publicado (suba a versão no app/build.gradle.kts, ou use --substituir)")
+        falha(f"{comp} {versao} já publicado (suba a versão no app/build.gradle.kts, ou use --substituir)")
 
-    nome = f"STD_MakimaCAN-{versao}.apk"
-    tag = f"app-v{versao}"
+    nome = f"{prefixo_nome}-{versao}.apk"
+    tag = f"{prefixo_tag}{versao}"
     with tempfile.TemporaryDirectory() as tmp:
         dest = os.path.join(tmp, nome)
         shutil.copyfile(apk, dest)
@@ -212,12 +229,12 @@ def publica_app(seco: bool, apk: str = APK, substituir: bool = False, beta: bool
             "sha256": sha256(dest),
             "tamanho": os.path.getsize(dest),
         }
-        print(f"app {versao} (código {codigo}, {item['canal']}) — {item['tamanho']} bytes")
-        envia(tag, f"App STD_MakimaCAN {versao}", [dest], canal(versao, beta) == "beta", seco, existe)
-    coloca(lista["app"]["versoes"], item, existe)
+        print(f"{comp} {versao} (código {codigo}, {item['canal']}) — {item['tamanho']} bytes")
+        envia(tag, f"{titulo} {versao}", [dest], canal(versao, beta) == "beta", seco, existe)
+    coloca(lista[comp]["versoes"], item, existe)
     if not seco:
         salva_lista(lista)
-    commit_lista(f"app {versao}" + (" (republicado)" if existe else ""), seco)
+    commit_lista(f"{comp} {versao}" + (" (republicado)" if existe else ""), seco)
 
 
 # ---------------------------------------------------------------- firmware
@@ -329,7 +346,7 @@ def publica_pc(seco: bool, substituir: bool = False, beta: bool = False) -> None
     commit_lista(f"pc {versao}" + (" (republicado)" if existe else ""), seco)
 
 
-PREFIXO_TAG = {"app": "app-v", "firmware": "fw-v", "pc": "pc-v"}
+PREFIXO_TAG = {"app": "app-v", "simu": "simu-v", "firmware": "fw-v", "pc": "pc-v"}
 
 
 def recomenda(componente: str, versao: str, seco: bool) -> None:
@@ -368,20 +385,20 @@ def retira(componente: str, versao: str, seco: bool) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Publica app/firmware/pc do STD_MakimaCAN")
-    ap.add_argument("componente", choices=["app", "firmware", "pc", "recomendar", "retirar"])
+    ap.add_argument("componente", choices=["app", "simu", "firmware", "pc", "recomendar", "retirar"])
     ap.add_argument("resto", nargs="*", help="recomendar/retirar: <app|firmware|pc> <versao>")
     ap.add_argument("--seco", action="store_true", help="só mostra o que faria")
-    ap.add_argument("--apk", default=APK, help="APK a publicar (padrão: o release do build)")
+    ap.add_argument("--apk", default=None, help="APK a publicar (padrão: o release do build)")
     ap.add_argument("--substituir", action="store_true", help="republica uma versão já publicada")
     ap.add_argument("--beta", action="store_true", help="publica no canal beta (pre-release)")
     a = ap.parse_args()
     if a.componente in ("recomendar", "retirar"):
         if len(a.resto) != 2 or a.resto[0] not in PREFIXO_TAG:
-            falha(f"uso: publicar.py {a.componente} app|firmware|pc <versao>")
+            falha(f"uso: publicar.py {a.componente} app|simu|firmware|pc <versao>")
         (recomenda if a.componente == "recomendar" else retira)(a.resto[0], a.resto[1], a.seco)
         return
-    if a.componente == "app":
-        publica_app(a.seco, a.apk, a.substituir, a.beta)
+    if a.componente in ANDROID:
+        publica_app(a.seco, a.apk, a.substituir, a.beta, comp=a.componente)
     elif a.componente == "pc":
         publica_pc(a.seco, a.substituir, a.beta)
     else:
