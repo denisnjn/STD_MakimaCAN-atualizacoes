@@ -50,7 +50,7 @@
   },
   "firmware": {
     "placa": "makimacan20-esp32",
-    "recomendada": "1.0.0",
+    "recomendada": "1.0.5",
     "versoes": [
       {
         "versao": "1.0.6",
@@ -89,7 +89,7 @@
       },
       {
         "versao": "1.0.5",
-        "canal": "beta",
+        "canal": "estavel",
         "data": "2026-11-12",
         "placa": "makimacan20-esp32",
         "chip": "ESP32",
