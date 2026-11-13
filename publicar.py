@@ -61,7 +61,9 @@ LISTA = os.path.join(AQUI, "versoes.json")
 
 PACOTE = "com.makimacan.std"
 # Impressão digital da chave de publicação (C:\Users\Denis\STD_MakimaCAN-assinatura).
-CERT_SHA256 = "8AC7F1446978F843CE30FD3BE96D797D079C544DF500E25BE21B4A9B9B4E3F66"
+# Chave nova em 2026-11-12 (a anterior, 8AC7F144...3F66, se perdeu: quem tinha o app reinstalou uma vez).
+# Backup no Google Drive, pasta "MakimaCAN-assinatura (NAO APAGAR)".
+CERT_SHA256 = "4A59D76577B9AD4007491B899F75FC2BAD8984CF68B3CA5C7E6AABDAD7FD206A"
 
 APK = os.path.join(APPS, "Android", "MakimacanSTD", "app", "build", "outputs", "apk", "release", "app-release.apk")
 # MakiSimu: só o simulador, para passar a outras pessoas (mesma chave de publicação).
